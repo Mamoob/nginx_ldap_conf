@@ -18,16 +18,16 @@ http {
 
     ldap_server adds {
       # url "ldap://192.168.1.77:389/DC=mamub,DC=local?uid?sub?(objectClass=*)";
-         url "ldap://192.168.1.77:389/dc=mamub,dc=local?sAMAccountName?sub?";
-         binddn "nginx@mamub.local";
-         binddn_passwd "PASSWD";
-         #group_attribute member;
-         #group_attribute_is_dn on;
-         #group_attribute uniquemember;
-         #group_attribute_is_dn on;
-         #require group "cn=nnn,ou=Groups,dc=mamub,dc=local"; # groups req
-         require valid_user;# any AD user
-         satisfy any;
+         url "ldap://192.168.1.77:389/dc=mamub,dc=local?sAMAccountName?sub?"; #with this parameter no errors in log file
+         binddn "nginx@mamub.local";                          # same  as mamub\\nginx
+         binddn_passwd "PASSWD";                              # password here
+         #group_attribute member;                             # enable this parameter when group access needed
+         #group_attribute_is_dn on;                           # enable this parameter when group access needed
+         #group_attribute uniquemember;                       # disable this parameter when group access needed
+         #group_attribute_is_dn on;                           # enable this parameter when group access needed
+         #require group "cn=nnn,ou=Groups,dc=mamub,dc=local"; # enable this parameter when group access needed
+         require valid_user;                                  # enable when any AD user need access
+         satisfy any;                                         # ?_?
     }
     gzip  on;
     server {
@@ -36,9 +36,9 @@ http {
 
         location / {
 
-           auth_ldap "Enter AD credentials e.g. 'some user'";
-           auth_ldap_servers adds;
-           proxy_pass   http://yandex.ru;
+           auth_ldap "Enter AD credentials e.g. 'some user'"; # message in dialog window
+           auth_ldap_servers adds;                            # specifies which LDAP server to use for authorization
+           proxy_pass   http://yandex.ru;                     # proxy pass address
 
         }
         error_page   500 502 503 504  /50x.html;
