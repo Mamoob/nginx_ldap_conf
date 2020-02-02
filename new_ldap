@@ -1,48 +1,50 @@
-worker_processes 1;
+worker_processes  1;
 
 events {
     worker_connections  1024;
 }
 
-
 http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    sendfile        on;
+    client_body_timeout 12;
+    client_header_timeout 12;
+    keepalive_timeout 15;
+    send_timeout 10;
+    auth_ldap_cache_enabled on;
+    auth_ldap_cache_expiration_time 10000;
+    auth_ldap_cache_size 1000;
 
-    include mime.types;
-    default_type application/octet-stream;
-    sendfile on;
-    keepalive_timeout 65;
-
-    ldap_server ldapserver {
-        url ldap://openldap/dc=example,dc=com?uid?sub?(objectClass=inetOrgPerson);
-        binddn "cn=admin,dc=example,dc=com";
-        binddn_passwd secret;
-        group_attribute memberuid;
-        group_attribute_is_dn off;
-        require group 'cn=admin,ou=groups,dc=example,dc=com';
-        #require valid_user;
-        #satisfy all;
+    ldap_server adds {
+      # url "ldap://192.168.1.77:389/DC=mamub,DC=local?uid?sub?(objectClass=*)";
+         url "ldap://192.168.1.77:389/dc=mamub,dc=local?sAMAccountName?sub?";
+         binddn "nginx@mamub.local";
+         binddn_passwd "PASSWD";
+         #group_attribute member;
+         #group_attribute_is_dn on;
+         #group_attribute uniquemember;
+         #group_attribute_is_dn on;
+         #require group "cn=nnn,ou=Groups,dc=mamub,dc=local"; # groups req
+         require valid_user;# any AD user
+         satisfy any;
     }
-
+    gzip  on;
     server {
-
-        listen 80;
-        server_name localhost;
-
-        error_log /var/log/nginx/error.log;
-        access_log /var/log/nginx/access.log;
-
-        auth_ldap "Forbidden";
-        auth_ldap_servers ldapserver;
+        listen       80;
+        server_name  localhost;
 
         location / {
-            proxy_pass http://examplepage;
-        }
 
-        error_page 500 502 503 504  /50x.html;
+           auth_ldap "Enter AD credentials e.g. 'some user'";
+           auth_ldap_servers adds;
+           proxy_pass   http://yandex.ru;
+
+        }
+        error_page   500 502 503 504  /50x.html;
         location = /50x.html {
-            root html;
+            root   html;
         }
-
     }
-
+include /etc/nginx/conf.d/*.conf;
 }
