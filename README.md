@@ -1,4 +1,20 @@
 # nginx_ldap_conf
+
+https://techlist.top/nginx-install-from-source/
+https://stackoverflow.com/questions/42078674/nginx-service-failed-to-read-pid-from-file-run-nginx-pid-invalid-argument
+
+yum install openldap-devel openssl-devel pcre-devel yum-utils gcc
+yumdownloader --source nginx
+rpm2cpio nginx-#-#.rpm | cpio -idmv
+tar xf nginx-#-#.tar.gz
+cd nginx-#-#
+./configure --user=nginx --group=nginx --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx --conf-path=/etc/nginx/nginx.conf --pid-path=/var/run/nginx.pid --lock-path=/var/run/nginx.lock --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --with-http_gzip_static_module --with-http_stub_status_module --with-http_ssl_module --with-pcre --with-file-aio --with-http_realip_module --with-http_v2_module --add-module=/root/source-nginx/nginx-auth-ldap --with-debug
+make install
+useradd --shell /sbin/nologin -M -r nginx
+cp ~/source-nginx/nginx.service /usr/lib/systemd/system/
+cp ~/source-nginx/nginx-#-#/man/nginx.8 /usr/local/share/man/man8/
+
+
 config sample
 
 
